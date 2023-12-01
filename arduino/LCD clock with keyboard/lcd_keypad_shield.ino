@@ -1,6 +1,5 @@
 #include <LiquidCrystal.h>
 #include <microDS3231.h>
-#include <stdio.h>
 
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 MicroDS3231 rtc;
@@ -93,11 +92,13 @@ void readRTC();
 void setup() {
   Serial.begin(9600);
   lcd.begin(16, 2);
-  delay(3000);
   readRTC();
   printDatetime();
 }
 
+
+unsigned long lastDisplayUpdate = 0;
+const long displayUpdateInterval = 1000;
 
 void loop() {
   currentButtonState = detectButton();
@@ -109,9 +110,14 @@ void loop() {
     lastButtonState = BTN_NONE;
   }
 
-  delay(100);
-  readRTC();
-  printDatetime();
+  unsigned long currentMillis = millis();
+  if (currentMillis - lastDisplayUpdate >= displayUpdateInterval) {
+    lastDisplayUpdate = currentMillis;
+    readRTC();
+    printDatetime();
+  }
+
+  delay(10);
 }
 
 void readRTC() {
@@ -119,11 +125,11 @@ void readRTC() {
 }
 
 void dateTimeToTimeString(RTCDateTime dt, char* buffer) {
-  sprintf(buffer, "%02d:%02d:%02d", dt.hour, dt.minute, dt.second);
+  snprintf(buffer, 9, "%02d:%02d:%02d", dt.hour, dt.minute, dt.second);
 }
 
 void dateTimeToDateString(RTCDateTime dt, char* buffer) {
-  sprintf(buffer, "%02d.%02d.%04d", dt.day, dt.month, dt.year);
+  snprintf(buffer, 11, "%02d.%02d.%04d", dt.day, dt.month, dt.year);
 }
 
 int detectButton() {
