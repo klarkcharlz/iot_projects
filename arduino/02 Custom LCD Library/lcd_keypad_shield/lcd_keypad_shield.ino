@@ -1,10 +1,12 @@
 #include <LiquidCrystal.h>
+#include "lcd.h"
 #include <microDS3231.h>
 
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
+// CustomLCD lcd(8, 9, 4, 5, 6, 7);
 MicroDS3231 rtc;
 
-#define BTN_UP   1
+#define BTN_UP 1
 #define BTN_DOWN 2
 #define BTN_LEFT 3
 #define BTN_RIGHT 4
@@ -23,12 +25,12 @@ MicroDS3231 rtc;
 #define DOWN 1
 
 int blinkIndices[][3] = {
-  {1, 0, 2}, // Часы (линия, позиция и длина)
-  {1, 3, 2}, // Минуты
-  {1, 6, 2}, // Секунды
-  {0, 0, 2}, // День
-  {0, 3, 2}, // Месяц
-  {0, 6, 4}  // Год
+  { 1, 0, 2 },  // Часы (линия, позиция и длина)
+  { 1, 3, 2 },  // Минуты
+  { 1, 6, 2 },  // Секунды
+  { 0, 0, 2 },  // День
+  { 0, 3, 2 },  // Месяц
+  { 0, 6, 4 }   // Год
 };
 unsigned long previousBlinkMillis = 0;
 const long blinkInterval = 350;
@@ -51,7 +53,7 @@ struct RTCDateTime {
     minute = mi;
     second = s;
   }
-  
+
   void increment(int mode) {
     switch (mode) {
       case HOURS_MODE: hour = (hour + 1) % 24; break;
@@ -62,7 +64,7 @@ struct RTCDateTime {
       case YEARS_MODE: year++; break;
     }
   }
-  
+
   void decrement(int mode) {
     switch (mode) {
       case HOURS_MODE: hour = (hour + 23) % 24; break;
@@ -92,6 +94,7 @@ void readRTC();
 void setup() {
   Serial.begin(9600);
   lcd.begin(16, 2);
+  // lcd.init();
   readRTC();
   printDatetime();
 }
@@ -103,11 +106,11 @@ const long displayUpdateInterval = 1000;
 void loop() {
   currentButtonState = detectButton();
 
-  if(currentButtonState == BTN_SELECT && currentButtonState != lastButtonState) {
+  if (currentButtonState == BTN_SELECT && currentButtonState != lastButtonState) {
     lastButtonState = currentButtonState;
     settingsMode();
   } else {
-    lastButtonState = BTN_NONE;
+    lastButtonState = currentButtonState;
   }
 
   unsigned long currentMillis = millis();
@@ -167,36 +170,41 @@ void settingsMode() {
   int currentMode = HOURS_MODE;
   unsigned long currentMillis;
 
-  while(setupUp) {
+  while (setupUp) {
     currentButtonState = detectButton();
 
     switch (currentButtonState) {
       case BTN_UP:
-        if(currentButtonState != lastButtonState) {
-            lastButtonState = currentButtonState;
-            changeDatetime(currentMode, UP);
+        Serial.println("BTN_UP");
+        if (currentButtonState != lastButtonState) {
+          lastButtonState = currentButtonState;
+          changeDatetime(currentMode, UP);
         }
         break;
       case BTN_DOWN:
-        if(currentButtonState != lastButtonState) {
-            lastButtonState = currentButtonState;
-            changeDatetime(currentMode, DOWN);
+        Serial.println("BTN_DOWN");
+        if (currentButtonState != lastButtonState) {
+          lastButtonState = currentButtonState;
+          changeDatetime(currentMode, DOWN);
         }
         break;
       case BTN_LEFT:
-        if(currentButtonState != lastButtonState) {
-            lastButtonState = currentButtonState;
-            currentMode = (currentMode - 1 + MODES_COUNT) % MODES_COUNT;
+        Serial.println("BTN_LEFT");
+        if (currentButtonState != lastButtonState) {
+          lastButtonState = currentButtonState;
+          currentMode = (currentMode - 1 + MODES_COUNT) % MODES_COUNT;
         }
         break;
       case BTN_RIGHT:
-      if(currentButtonState != lastButtonState) {
+        Serial.println("BTN_RIGHT");
+        if (currentButtonState != lastButtonState) {
           lastButtonState = currentButtonState;
           currentMode = (currentMode + 1) % MODES_COUNT;
         }
         break;
       case BTN_SELECT:
-        if(currentButtonState != lastButtonState) {
+        Serial.println("BTN_SELECT");
+        if (currentButtonState != lastButtonState) {
           lastButtonState = currentButtonState;
           setupUp = false;
         }
@@ -219,6 +227,7 @@ void settingsMode() {
             } else {
               lcd.setCursor(blinkIndices[i][1] + j, blinkIndices[i][0]);
               lcd.write(' ');
+              // lcd.print(' ');
             }
           }
         }
