@@ -2,8 +2,8 @@
 #include "lcd.h"
 #include <microDS3231.h>
 
-LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
-// CustomLCD lcd(8, 9, 4, 5, 6, 7);
+// LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
+CustomLCD lcd(8, 9, 4, 5, 6, 7);
 MicroDS3231 rtc;
 
 #define BTN_UP 1
@@ -93,8 +93,8 @@ void readRTC();
 
 void setup() {
   Serial.begin(9600);
-  lcd.begin(16, 2);
-  // lcd.init();
+  // lcd.begin(16, 2);
+  lcd.init();
   readRTC();
   printDatetime();
 }
@@ -226,8 +226,8 @@ void settingsMode() {
               printDatetime();
             } else {
               lcd.setCursor(blinkIndices[i][1] + j, blinkIndices[i][0]);
-              lcd.write(' ');
-              // lcd.print(' ');
+              // lcd.write(' ');
+              lcd.print(' ');
             }
           }
         }
