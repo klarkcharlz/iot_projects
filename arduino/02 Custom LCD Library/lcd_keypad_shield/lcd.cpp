@@ -74,12 +74,13 @@ void CustomLCD::sendbyte(unsigned char c, unsigned char mode) {
 
 void CustomLCD::sendhalfbyte(unsigned char value) {
   value <<= 4;                 // Сдвиг значений в старшие разряды для соответствия пинам D4-D7
-  digitalWrite(enable, HIGH);  //включаем линию Е
-  delayMicroseconds(50);
   digitalWrite(d4, value & 0x10);
   digitalWrite(d5, value & 0x20);
   digitalWrite(d6, value & 0x40);
   digitalWrite(d7, value & 0x80);
+
+  digitalWrite(enable, HIGH);  //включаем линию Е
+  delayMicroseconds(50);
   digitalWrite(enable, LOW);  //выключаем линию Е
   delayMicroseconds(50);
 }
