@@ -99,7 +99,7 @@ MicroDS3231 rtc;
 RTCDateTime myDateTime;
 
 void setup() {
-  // rtc.setTime(COMPILE_TIME);  // use for the first firmware to set the current time
+  rtc.setTime(COMPILE_TIME);  // use for the first firmware to set the current time
   Serial.begin(9600);
   lcd.init();
   readRTC();
@@ -206,14 +206,15 @@ void settingsMode() {
 
     if (currentMillis - lastReadButton >= readButtonInterval) {
       lastReadButton = currentMillis;
-      uint8_t newButtonState = detectButton();
+      currentButtonState = detectButton();
 
-      if (newButtonState != BTN_NONE && newButtonState != lastButtonState) {
-        if (newButtonState == BTN_SELECT) setupUp = false;
-        else handleButtonPress(newButtonState, currentMode);
-
-        lastButtonState = newButtonState;
+      if (currentButtonState != BTN_NONE && currentButtonState != lastButtonState) {
+        if (currentButtonState == BTN_SELECT) setupUp = false;
+        else handleButtonPress(currentButtonState, currentMode);
       }
+      
+      lastButtonState = currentButtonState;
+      
     }
 
     if (currentMillis - previousBlinkMillis >= blinkInterval) {
@@ -222,6 +223,7 @@ void settingsMode() {
       currentSettingsMode = isBlinkShow ? currentMode : NONE_MODE;
       printDatetime();
     }
+
   }
   rtc.setTime(myDateTime.second, myDateTime.minute, myDateTime.hour, myDateTime.day, myDateTime.month, myDateTime.year);
   Serial.println("Exit in setup mode");
