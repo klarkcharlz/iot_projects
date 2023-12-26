@@ -54,4 +54,6 @@ void Serial_PrintInt(int number)
     itoa(number, buffer, 10);
     // Print the string using Serial
     Serial_Print(buffer);
+    Serial_Transmit('\r'); // Carriage return
+    Serial_Transmit('\n'); // Line translation
 }
