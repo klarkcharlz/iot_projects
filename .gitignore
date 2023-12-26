@@ -1,0 +1,4 @@
+.idea
+build
+avr_dev_prompt.cmd
+set_avr_paths.cmd
