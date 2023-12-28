@@ -44,6 +44,8 @@ void Serial_Print(const char *str)
         // Transmit the current character
         Serial_Transmit(*str++);
     }
+    Serial_Transmit('\r'); // Carriage return
+    Serial_Transmit('\n'); // Line translation
 }
 
 // Print an integer as a string via Serial
@@ -54,6 +56,4 @@ void Serial_PrintInt(int number)
     itoa(number, buffer, 10);
     // Print the string using Serial
     Serial_Print(buffer);
-    Serial_Transmit('\r'); // Carriage return
-    Serial_Transmit('\n'); // Line translation
 }
