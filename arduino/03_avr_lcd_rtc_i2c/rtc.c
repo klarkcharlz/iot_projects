@@ -19,7 +19,7 @@ uint8_t RTC_ConvertFromDec(uint8_t data)
 }
 
 // Set the RTC with provided date and time values
-void setRTC(uint8_t sec, uint8_t min, uint8_t hour, uint8_t day, uint8_t date, uint8_t month, uint16_t year)
+void setRTC(uint8_t sec, uint8_t min, uint8_t hour, uint8_t day, uint8_t date, uint8_t month, uint8_t year)
 {
 	I2C_Start();
 	I2C_SendByte(TWI_addrRTC_write); // Write to RTC address
@@ -58,6 +58,6 @@ void readRTC()
 	RTC.hour = RTC_ConvertFromDec(RTC.hour);
 	RTC.day = RTC_ConvertFromDec(RTC.day);
 	RTC.date = RTC_ConvertFromDec(RTC.date);
-	RTC.year = RTC_ConvertFromDec(RTC.year);
+	RTC.year = RTC_ConvertFromDec(RTC.year) + 2000;
 	RTC.month = RTC_ConvertFromDec(RTC.month);
 }
