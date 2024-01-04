@@ -23,7 +23,7 @@
 #define LCD_ENABLE_HIGH() (LCD_CONTROL_PORT |= (1 << LCD_ENABLE_PIN))
 
 // Function for sending half a byte to the LCD
-static void lcd_send_half_byte(unsigned char value)
+static void lcdSendHalfByte(unsigned char value)
 {
     value <<= 4;
     LCD_ENABLE_HIGH();
@@ -35,7 +35,7 @@ static void lcd_send_half_byte(unsigned char value)
 }
 
 // Function for sending a byte to the LCD
-static void lcd_send_byte(unsigned char c, unsigned char mode)
+static void lcdSendByte(unsigned char c, unsigned char mode)
 {
     if (mode)
     {
@@ -46,12 +46,12 @@ static void lcd_send_byte(unsigned char c, unsigned char mode)
         LCD_RS_LOW(); // Command mode
     }
 
-    lcd_send_half_byte(c >> 4); // Send higher nibble
-    lcd_send_half_byte(c);      // Send lower nibble
+    lcdSendHalfByte(c >> 4); // Send higher nibble
+    lcdSendHalfByte(c);      // Send lower nibble
 }
 
 // Function to initialize the LCD
-void lcd_init(void)
+void lcdInit(void)
 {
     // Configure LCD pins as output
     LCD_CONTROL_DDR |= (1 << LCD_RS_PIN) | (1 << LCD_ENABLE_PIN);
@@ -59,43 +59,43 @@ void lcd_init(void)
 
     // Initialization sequence for the LCD
     _delay_ms(15);
-    lcd_send_byte(0b00000011, 0);
+    lcdSendByte(0b00000011, 0);
     _delay_ms(4);
-    lcd_send_byte(0b00000011, 0);
+    lcdSendByte(0b00000011, 0);
     _delay_us(100);
-    lcd_send_byte(0b00000011, 0);
+    lcdSendByte(0b00000011, 0);
     _delay_ms(1);
-    lcd_send_byte(0b00000010, 0); // Switch to 4-bit mode
+    lcdSendByte(0b00000010, 0); // Switch to 4-bit mode
     _delay_ms(1);
-    lcd_send_byte(0b00101000, 0); // 2 rows, 5x8 point matrix
+    lcdSendByte(0b00101000, 0); // 2 rows, 5x8 point matrix
     _delay_ms(1);
-    lcd_send_byte(0b00001100, 0); // Display on, cursor off
+    lcdSendByte(0b00001100, 0); // Display on, cursor off
     _delay_ms(1);
-    lcd_send_byte(0b00000110, 0); // Cursor increment, no shift
+    lcdSendByte(0b00000110, 0); // Cursor increment, no shift
     _delay_ms(1);
 
-    lcd_clear();
+    lcdClear();
 }
 
 // Function to clear the LCD
-void lcd_clear(void)
+void lcdClear(void)
 {
-    lcd_send_byte(0b00000001, 0);
+    lcdSendByte(0b00000001, 0);
     _delay_us(1500);
 }
 
 // Function to set the cursor position
-void lcd_set_cursor(uint8_t x, uint8_t y)
+void lcdSetCursor(uint8_t x, uint8_t y)
 {
     char address = (0x40 * y + x) | 0b10000000;
-    lcd_send_byte(address, 0);
+    lcdSendByte(address, 0);
 }
 
 // Function to display text on the LCD
-void lcd_print(const char *str)
+void lcdPrint(const char *str)
 {
     while (*str)
     {
-        lcd_send_byte(*str++, 1);
+        lcdSendByte(*str++, 1);
     }
 }

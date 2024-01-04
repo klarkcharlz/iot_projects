@@ -8,10 +8,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "twi.h"
-#include "lcd.h"
-#include "rtc.h"
-#include "serial.h"
-#include "adc.h"
+#include "../bsp/i2c.h"
+#include "../bsp/lcd.h"
+#include "../bsp/rtc.h"
+#include "../bsp/serial.h"
+#include "../bsp/adc.h"
 
 #endif

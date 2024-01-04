@@ -12,12 +12,12 @@ AVRSIZE = avr-size
 AVRDUDE = avrdude
 
 C_SOURCES:= \
-serial.c \
-adc.c \
-lcd.c \
-rtc.c \
-twi.c \
-main.c \
+./bsp/serial.c \
+./bsp/adc.c \
+./bsp/lcd.c \
+./bsp/rtc.c \
+./bsp/i2c.c \
+./app/main.c \
 
 C_INCLUDE_DIRS:= \
 .

@@ -20,29 +20,26 @@
 #define UP 0
 #define DOWN 1
 
-#define true 1
-#define false 0
-
 // variables
-uint8_t dateStr[11] = {};
-uint8_t timeStr[9] = {};
-uint8_t lastButtonState = BTN_NONE;
-uint8_t currentButtonState = BTN_NONE;
-uint8_t currentSettingsMode = NONE_MODE;
-volatile uint8_t needPrintDateTime = false;
-volatile uint8_t needReadButton = false;
-volatile uint8_t isBlinkShow = false;
-volatile uint8_t blinkMode = false;
+uint8_t date_str[11] = {};
+uint8_t time_str[9] = {};
+uint8_t last_button_state = BTN_NONE;
+uint8_t current_button_state = BTN_NONE;
+uint8_t current_settings_mode = NONE_MODE;
+uint8_t need_print_date_time = 0;
+uint8_t need_read_button = 0;
+uint8_t is_blink_show = 0;
+uint8_t blink_mode = 0;
 
 // prototypes
 uint8_t detectButton();
 void formatNumber(uint8_t *buffer, uint8_t number, uint8_t isVisible);
 void dateTimeToTimeString(TIME dt, uint8_t *buffer);
 void dateTimeToDateString(TIME dt, uint8_t *buffer);
-void printDatetime();
+void printDateTime();
 void settingsMode();
 uint8_t handleButtonPress(uint8_t button, uint8_t mode);
-void changeDatetime(uint8_t mode, uint8_t operation);
+void changeDateTime(uint8_t mode, uint8_t operation);
 void decrement(TIME *dt, uint8_t mode);
 void increment(TIME *dt, uint8_t mode);
 
@@ -65,35 +62,35 @@ void initTimer1()
 ISR(TIMER0_COMPA_vect)
 {
   // Code that runs every 10ms
-  needReadButton = true;
+  need_read_button = 1;
 }
 
 ISR(TIMER1_COMPA_vect)
 {
   // Code that runs every second
-  if (blinkMode)
+  if (blink_mode)
   {
-    isBlinkShow = !isBlinkShow;
+    is_blink_show = !is_blink_show;
   }
   else
   {
-    needPrintDateTime = true;
+    need_print_date_time = 1;
   }
 }
 
 int main(void)
 {
-  ADC_Init();
-  lcd_init();
-  I2C_Init();
-  Serial_Init(9600);
+  adcInit();
+  lcdInit();
+  i2cInit();
+  serialInit(9600);
 
-  lcd_clear();
-  setRTC(12, 0, 0, 1, 1, 1, 21);
+  lcdClear();
+  setRtc(12, 0, 0, 1, 1, 1, 21);
 
-  lcd_set_cursor(0, 0);
-  lcd_print("Hello, World1!");
-  Serial_Print("Hello, World!");
+  lcdSetCursor(0, 0);
+  lcdPrint("Hello, World1!");
+  serialPrint("Hello, World!");
 
   _delay_ms(3000);
 
@@ -104,27 +101,27 @@ int main(void)
   while (1)
   {
 
-    if (needPrintDateTime)
+    if (need_print_date_time)
     {
-      readRTC();
-      lcd_clear();
-      printDatetime();
-      needPrintDateTime = false;
+      readRtc();
+      lcdClear();
+      printDateTime();
+      need_print_date_time = 0;
     }
 
-    if (needReadButton)
+    if (need_read_button)
     {
-      currentButtonState = detectButton();
-      if (currentButtonState == BTN_SELECT && currentButtonState != lastButtonState)
+      current_button_state = detectButton();
+      if (current_button_state == BTN_SELECT && current_button_state != last_button_state)
       {
-        lastButtonState = currentButtonState;
-        needReadButton = false;
+        last_button_state = current_button_state;
+        need_read_button = 0;
         settingsMode();
       }
       else
       {
-        needReadButton = false;
-        lastButtonState = currentButtonState;
+        need_read_button = 0;
+        last_button_state = current_button_state;
       }
     }
   }
@@ -134,7 +131,7 @@ int main(void)
 
 uint8_t detectButton()
 {
-  uint16_t keyAnalog = ADC_Read(0); // Read from channel PC0 (A0 in Arduino)
+  uint16_t keyAnalog = adcRead(0); // Read from channel PC0 (A0 in Arduino)
   if (keyAnalog < 50)
     return BTN_RIGHT;
   if (keyAnalog < 195)
@@ -148,34 +145,34 @@ uint8_t detectButton()
   return BTN_NONE;
 }
 
-void printDatetime()
+void printDateTime()
 {
-  dateTimeToTimeString(RTC, timeStr);
-  dateTimeToDateString(RTC, dateStr);
-  lcd_set_cursor(0, 0);
-  lcd_print(dateStr);
-  lcd_set_cursor(0, 1);
-  lcd_print(timeStr);
+  dateTimeToTimeString(RTC, time_str);
+  dateTimeToDateString(RTC, date_str);
+  lcdSetCursor(0, 0);
+  lcdPrint(date_str);
+  lcdSetCursor(0, 1);
+  lcdPrint(time_str);
 }
 
 void dateTimeToTimeString(TIME dt, uint8_t *buffer)
 {
-  formatNumber(buffer, dt.hour, currentSettingsMode != HOURS_MODE);
+  formatNumber(buffer, dt.hour, current_settings_mode != HOURS_MODE);
   buffer[2] = ':';
-  formatNumber(buffer + 3, dt.min, currentSettingsMode != MINUTES_MODE);
+  formatNumber(buffer + 3, dt.min, current_settings_mode != MINUTES_MODE);
   buffer[5] = ':';
-  formatNumber(buffer + 6, dt.sec, currentSettingsMode != SECONDS_MODE);
+  formatNumber(buffer + 6, dt.sec, current_settings_mode != SECONDS_MODE);
   buffer[8] = '\0'; // terminating null character
 }
 
 void dateTimeToDateString(TIME dt, uint8_t *buffer)
 {
-  formatNumber(buffer, dt.day, currentSettingsMode != DAYS_MODE);
+  formatNumber(buffer, dt.day, current_settings_mode != DAYS_MODE);
   buffer[2] = '.';
-  formatNumber(buffer + 3, dt.month, currentSettingsMode != MONTHS_MODE);
+  formatNumber(buffer + 3, dt.month, current_settings_mode != MONTHS_MODE);
   buffer[5] = '.';
-  formatNumber(buffer + 6, dt.year / 100, currentSettingsMode != YEARS_MODE);
-  formatNumber(buffer + 8, dt.year % 100, currentSettingsMode != YEARS_MODE);
+  formatNumber(buffer + 6, dt.year / 100, current_settings_mode != YEARS_MODE);
+  formatNumber(buffer + 8, dt.year % 100, current_settings_mode != YEARS_MODE);
   buffer[10] = '\0'; // terminating null character
 }
 
@@ -242,17 +239,10 @@ void decrement(TIME *dt, uint8_t mode)
   }
 }
 
-void changeDatetime(uint8_t mode, uint8_t operation)
+void changeDateTime(uint8_t mode, uint8_t operation)
 {
-  if (operation == UP)
-  {
-    increment(&RTC, mode);
-  }
-  else
-  {
-    decrement(&RTC, mode);
-  }
-  printDatetime();
+  operation == UP ? increment(&RTC, mode) : decrement(&RTC, mode);
+  printDateTime();
 }
 
 uint8_t handleButtonPress(uint8_t button, uint8_t mode)
@@ -260,10 +250,10 @@ uint8_t handleButtonPress(uint8_t button, uint8_t mode)
   switch (button)
   {
   case BTN_UP:
-    changeDatetime(mode, UP);
+    changeDateTime(mode, UP);
     break;
   case BTN_DOWN:
-    changeDatetime(mode, DOWN);
+    changeDateTime(mode, DOWN);
     break;
   case BTN_LEFT:
     mode = (mode - 1 + MODES_COUNT) % MODES_COUNT;
@@ -273,51 +263,51 @@ uint8_t handleButtonPress(uint8_t button, uint8_t mode)
     break;
   }
 
-  Serial_PrintInt(mode);
+  serialPrintInt(mode);
 
   return mode;
 }
 
 void settingsMode()
 {
-  blinkMode = true;
-  needPrintDateTime = false;
+  blink_mode = 1;
+  need_print_date_time = 0;
   uint8_t currentMode = HOURS_MODE;
   TCNT1 = 0;
   OCR1A = 5461; // for blink 350ms
-  uint8_t lastBlinkMode = !isBlinkShow;
-  uint8_t setupUp = true;
-  Serial_Print("Enter in setup mode");
+  uint8_t lastBlinkMode = !is_blink_show;
+  uint8_t setupUp = 1;
+  serialPrint("Enter in setup mode");
 
   while (setupUp)
   {
-    if (needReadButton)
+    if (need_read_button)
     {
-      currentButtonState = detectButton();
-      if (currentButtonState != BTN_NONE && currentButtonState != lastButtonState)
+      current_button_state = detectButton();
+      if (current_button_state != BTN_NONE && current_button_state != last_button_state)
       {
-        if (currentButtonState == BTN_SELECT)
-          setupUp = false;
+        if (current_button_state == BTN_SELECT)
+          setupUp = 0;
         else
-          currentMode = handleButtonPress(currentButtonState, currentMode);
+          currentMode = handleButtonPress(current_button_state, currentMode);
       }
-      needReadButton = false;
-      lastButtonState = currentButtonState;
+      need_read_button = 0;
+      last_button_state = current_button_state;
     }
 
-    if (lastBlinkMode != isBlinkShow)
+    if (lastBlinkMode != is_blink_show)
     {
-      currentSettingsMode = isBlinkShow ? currentMode : NONE_MODE;
-      printDatetime();
-      lastBlinkMode = isBlinkShow;
+      current_settings_mode = is_blink_show ? currentMode : NONE_MODE;
+      printDateTime();
+      lastBlinkMode = is_blink_show;
     }
   }
 
-  currentSettingsMode = NONE_MODE;
-  setRTC(RTC.sec, RTC.min, RTC.hour, RTC.day, RTC.date, RTC.month, RTC.year % 100);
-  blinkMode = false;
-  printDatetime();
+  current_settings_mode = NONE_MODE;
+  setRtc(RTC.sec, RTC.min, RTC.hour, RTC.day, RTC.date, RTC.month, RTC.year % 100);
+  blink_mode = 0;
+  printDateTime();
   TCNT1 = 0;
   OCR1A = 15624;
-  Serial_Print("Exit in setup mode");
+  serialPrint("Exit in setup mode");
 }

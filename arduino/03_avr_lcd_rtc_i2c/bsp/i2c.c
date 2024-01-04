@@ -1,23 +1,23 @@
-#include "twi.h"
+#include "i2c.h"
 
-void I2C_Init(void)
+void i2cInit(void)
 {
 	TWBR = 0x20; // Set bit rate register value for I2C speed
 }
 
-void I2C_Start(void)
+void i2cStart(void)
 {
 	TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN); // Send START condition
 	while (!(TWCR & (1 << TWINT)))					  // Wait for START condition to be transmitted
 		;
 }
 
-void I2C_Stop(void)
+void i2cStop(void)
 {
 	TWCR = (1 << TWINT) | (1 << TWSTO) | (1 << TWEN); // Send STOP condition
 }
 
-void I2C_SendByte(unsigned char byte)
+void i2cSendByte(unsigned char byte)
 {
 	TWDR = byte;					   // Load byte into Data Register
 	TWCR = (1 << TWINT) | (1 << TWEN); // Start transmission of byte
@@ -25,15 +25,15 @@ void I2C_SendByte(unsigned char byte)
 		;
 }
 
-void I2C_SendByteByADDR(unsigned char data, unsigned char addr)
+void i2cSendByteByADDR(unsigned char data, unsigned char addr)
 {
-	I2C_Start();		// Start I2C communication
-	I2C_SendByte(addr); // Send slave address with write flag
-	I2C_SendByte(data); // Send data byte
-	I2C_Stop();			// Stop I2C communication
+	i2cStart();		   // Start I2C communication
+	i2cSendByte(addr); // Send slave address with write flag
+	i2cSendByte(data); // Send data byte
+	i2cStop();		   // Stop I2C communication
 }
 
-unsigned char I2C_ReadByte(void)
+unsigned char i2cReadByte(void)
 {
 	TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA); // Enable ACK for reception, start receiving
 	while (!(TWCR & (1 << TWINT)))					 // Wait for byte reception to complete
@@ -41,7 +41,7 @@ unsigned char I2C_ReadByte(void)
 	return TWDR; // Return received byte
 }
 
-unsigned char I2C_ReadLastByte(void)
+unsigned char i2cReadLastByte(void)
 {
 	TWCR = (1 << TWINT) | (1 << TWEN); // Disable ACK for reception, start receiving last byte
 	while (!(TWCR & (1 << TWINT)))	   // Wait for the last byte reception to complete

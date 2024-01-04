@@ -1,6 +1,6 @@
 #include "adc.h"
 
-void ADC_Init() {
+void adcInit() {
     // Select the reference voltage (for example, AVcc with an external capacitor on the AREF pin)
     ADMUX |= (1 << REFS0);
     // Channel selection (PC0, which corresponds to A0 in Arduino)
@@ -11,7 +11,7 @@ void ADC_Init() {
     ADCSRA |= (1 << ADEN);
 }
 
-uint16_t ADC_Read(uint8_t channel) {
+uint16_t adcRead(uint8_t channel) {
     // Select ADC channel while saving reference voltage settings
     ADMUX = (ADMUX & 0xF8) | channel;
     // Start single conversion
