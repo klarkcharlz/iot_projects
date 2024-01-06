@@ -22,7 +22,11 @@
 #define LCD_ENABLE_LOW() (LCD_CONTROL_PORT &= ~(1 << LCD_ENABLE_PIN))
 #define LCD_ENABLE_HIGH() (LCD_CONTROL_PORT |= (1 << LCD_ENABLE_PIN))
 
-// Function for sending half a byte to the LCD
+/**
+ * @brief Sends half a byte to the LCD.
+ *
+ * @param value The half byte value to send.
+ */
 static void lcdSendHalfByte(unsigned char value)
 {
     value <<= 4;
@@ -34,7 +38,12 @@ static void lcdSendHalfByte(unsigned char value)
     _delay_us(50);
 }
 
-// Function for sending a byte to the LCD
+/**
+ * @brief Sends a byte to the LCD in either command or data mode.
+ *
+ * @param c The byte to send.
+ * @param mode The mode for the byte (command=0, data=1).
+ */
 static void lcdSendByte(unsigned char c, unsigned char mode)
 {
     if (mode)
@@ -50,7 +59,9 @@ static void lcdSendByte(unsigned char c, unsigned char mode)
     lcdSendHalfByte(c);      // Send lower nibble
 }
 
-// Function to initialize the LCD
+/**
+ * @brief Initializes the LCD display with predefined settings.
+ */
 void lcdInit(void)
 {
     // Configure LCD pins as output
@@ -77,21 +88,32 @@ void lcdInit(void)
     lcdClear();
 }
 
-// Function to clear the LCD
+/**
+ * @brief Clears the LCD display.
+ */
 void lcdClear(void)
 {
     lcdSendByte(0b00000001, 0);
     _delay_us(1500);
 }
 
-// Function to set the cursor position
+/**
+ * @brief Sets the cursor to a specified position on the LCD.
+ *
+ * @param x The x-coordinate (column) for the cursor.
+ * @param y The y-coordinate (row) for the cursor.
+ */
 void lcdSetCursor(uint8_t x, uint8_t y)
 {
     char address = (0x40 * y + x) | 0b10000000;
     lcdSendByte(address, 0);
 }
 
-// Function to display text on the LCD
+/**
+ * @brief Displays a string of text on the LCD.
+ *
+ * @param str Pointer to the string to be displayed.
+ */
 void lcdPrint(const char *str)
 {
     while (*str)

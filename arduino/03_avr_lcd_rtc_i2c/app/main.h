@@ -7,6 +7,7 @@
 #include <avr/interrupt.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <avr/wdt.h>
 
 #include "../bsp/i2c.h"
 #include "../bsp/lcd.h"

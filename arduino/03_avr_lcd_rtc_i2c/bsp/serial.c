@@ -3,7 +3,11 @@
 // Macro to calculate the baud rate prescale value
 #define BAUD_PRESCALE(baudrate) ((F_CPU / (baudrate * 16UL)) - 1)
 
-// Initialize Serial communication
+/**
+ * @brief Initializes Serial communication with specified baud rate.
+ *
+ * @param baudrate The baud rate for serial communication.
+ */
 void serialInit(uint32_t baudrate)
 {
     // Set baud rate
@@ -15,7 +19,11 @@ void serialInit(uint32_t baudrate)
     UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
 }
 
-// Transmit a single byte of data
+/**
+ * @brief Transmits a single byte of data via Serial.
+ *
+ * @param data The byte of data to transmit.
+ */
 void serialTransmit(uint8_t data)
 {
     // Wait for empty transmit buffer
@@ -25,7 +33,11 @@ void serialTransmit(uint8_t data)
     UDR0 = data;
 }
 
-// Receive a single byte of data
+/**
+ * @brief Receives a single byte of data via Serial.
+ *
+ * @return uint8_t The received byte of data.
+ */
 uint8_t serialReceive(void)
 {
     // Wait for data to be received
@@ -35,7 +47,11 @@ uint8_t serialReceive(void)
     return UDR0;
 }
 
-// Print a string via Serial
+/**
+ * @brief Prints a string via Serial.
+ *
+ * @param str Pointer to the string to be transmitted.
+ */
 void serialPrint(const char *str)
 {
     // Loop through each character in the string
@@ -48,30 +64,42 @@ void serialPrint(const char *str)
     serialTransmit('\n'); // Line translation
 }
 
-static void convertNumToStr(int number, char *buffer) {
+/**
+ * @brief Converts an integer number to a string.
+ *
+ * @param number The integer number to convert.
+ * @param buffer Buffer to store the converted string.
+ */
+static void convertNumToStr(int number, char *buffer)
+{
     int i = 0;
     int isNegative = 0;
-    if (number == 0) {
+    if (number == 0)
+    {
         buffer[i++] = '0';
         buffer[i] = '\0';
         return;
     }
-    if (number < 0) {
+    if (number < 0)
+    {
         isNegative = 1;
         number = -number;
     }
-    while (number != 0) {
+    while (number != 0)
+    {
         int rem = number % 10;
         buffer[i++] = rem + '0';
         number = number / 10;
     }
-    if (isNegative) {
+    if (isNegative)
+    {
         buffer[i++] = '-';
     }
     buffer[i] = '\0';
     int start = 0;
     int end = i - 1;
-    while (start < end) {
+    while (start < end)
+    {
         char temp = buffer[start];
         buffer[start] = buffer[end];
         buffer[end] = temp;
@@ -80,7 +108,11 @@ static void convertNumToStr(int number, char *buffer) {
     }
 }
 
-// Print an integer as a string via Serial
+/**
+ * @brief Prints an integer as a string via Serial.
+ *
+ * @param number The integer number to print.
+ */
 void serialPrintInt(int number)
 {
     char buffer[12]; // Buffer to hold the ASCII representation of the number
